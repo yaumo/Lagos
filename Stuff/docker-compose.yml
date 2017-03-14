@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  mq:
+    image: rabbitmq:management-alpine
+    ports:
+      - 4369:4369
+      - 5671:5671
+      - 5672:5672
+      - 25672:25672
+      - 15671:15671
+      - 15672:15672
+
+  oip:
+    image: jreichwald/dhbw_oip
+    depends_on:
+      - mq
+    links:
+      - mq:mq
+    environment:
+      RHOST: mq
+      FTYPE: 4
