@@ -3,7 +3,7 @@ import java.util.UUID;
 import org.json.*;
 public class Solution {
     private String solutionCandidateID;
-    private double[] solutionVector = {42.0, 2.0, 8.0, 1.335, 345.0, 3.5, 3.80, 34.5, 5.0, 561.0, 4.0, 3.0, 7.0, 2.0, 7.0, 4.0, 2.0};
+    private double[] solutionVector;
     private double resultValue=0.0;
     private boolean isFeasible=false;
     private boolean isEvaluated=false;
@@ -11,9 +11,6 @@ public class Solution {
     Solution(double[] solutions){
         solutionCandidateID= UUID.randomUUID().toString();
         this.setSolutionVector(solutions);
-    }
-    Solution(){
-        solutionCandidateID= UUID.randomUUID().toString();
     }
     String toJSON(){
         JSONObject json = new JSONObject(this);

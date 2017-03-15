@@ -1,5 +1,7 @@
 package algorithm;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import messaging.RabbitMQListener;
 import messaging.RabbitMQSender;
 
@@ -9,7 +11,14 @@ public class simulatedAnnealing {
             RabbitMQSender send = RabbitMQSender.getInstance();
             RabbitMQListener listen = RabbitMQListener.getInstance();
         
-            Solution sl = new Solution();
-            send.sendMessage(sl.toJSON());
+            Solution start = generateRandomSolution();
+            send.sendMessage(start.toJSON());
+    }
+    public static Solution generateRandomSolution(){
+        double [] vector = new double [17];
+        for(int i=0; i<17;i++){
+          vector[i]= ThreadLocalRandom.current().nextDouble(-5, 5);
+        }
+        return new Solution(vector);
     }
 }
