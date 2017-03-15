@@ -13,8 +13,7 @@ public class Solution {
         this.setSolutionVector(solutions);
     }
     String toJSON(){
-        JSONObject json = new JSONObject(this);
-        return json.toString();
+        return new JSONObject(this).toString();
     }
     public String getSolutionCandidateID() {
         return solutionCandidateID;
