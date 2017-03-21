@@ -29,7 +29,7 @@ public class RabbitMQSender {
     public void sendMessage(String message) {
         try {
             channel.basicPublish("", "Inbound", null, message.getBytes());
-            System.out.println("[x] Sent '" + message + "'");
+            //System.out.println("[x] Sent '" + message + "'");
         } catch (IOException e) {
             e.printStackTrace();
         }

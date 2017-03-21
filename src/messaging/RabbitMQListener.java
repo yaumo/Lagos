@@ -2,14 +2,31 @@ package messaging;
 
 import java.io.IOException;
 
-import com.rabbitmq.client.*;
+import com.google.gson.Gson;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
+
+import algorithm.Solution;
+import algorithm.simulatedAnnealing;
 
 public class RabbitMQListener {
     Channel channel;
     String queueName;
     private static final RabbitMQListener me=new RabbitMQListener();
-    
+    private static double temp=111;
+    private static simulatedAnnealing alg;
     private RabbitMQListener() {
+        listen();
+    }
+    public void setAnnealing(simulatedAnnealing alg){
+        this.alg=alg;
+    }
+    private synchronized void listen(){
         try {
             ConnectionFactory factory = new ConnectionFactory();
             factory.setHost("localhost");
@@ -24,15 +41,27 @@ public class RabbitMQListener {
 
             Consumer consumer = new DefaultConsumer(channel) {
                 @Override
-                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
+                public synchronized void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
                         throws IOException {
                     String message = new String(body, "UTF-8");
-                    System.out.println("[x] Received '" + message + "'");
+                    //System.out.println("[x] Received '" + message + "'");
+                    Gson gson = new Gson();
+                    Solution sol = gson.fromJson(message, Solution.class);
+                    temp = sol.getResultValue();                   
                 }
             };
             channel.basicConsume(queueName, true, consumer);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    public double getValue(){
+        if (temp == 111)
+            return temp;
+        else{
+            double tmpp = temp;
+            temp=111;
+            return tmpp;
         }
     }
     public static RabbitMQListener getInstance(){
