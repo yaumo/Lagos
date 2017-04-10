@@ -20,3 +20,4 @@ services:
     environment:
       RHOST: mq
       FTYPE: 4
+      DELAY: 1
