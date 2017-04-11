@@ -12,7 +12,7 @@ import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
-import algorithm.Optimizer;
+import algorithm.OptimizerThread;
 import algorithm.Solution;
 
 public class RabbitMQListenerThread implements Runnable {
@@ -20,10 +20,17 @@ public class RabbitMQListenerThread implements Runnable {
 	String queueName;
 	Connection connection;
 	String consumerTag;
-	private static RabbitMQListenerThread listener = new RabbitMQListenerThread();
 	private volatile double value;
 	private volatile boolean shutdown = false;
+	private Object threadSynchronizeObj;
+	private Solution lastSolutionCandidate;
+	private int threadID;
 
+	public RabbitMQListenerThread(Object threadSynchronizeObj, int threadID){
+		this.threadSynchronizeObj = threadSynchronizeObj;
+		this.threadID = threadID;
+	}
+	
 	public void run() {
 
 		try {
@@ -36,19 +43,22 @@ public class RabbitMQListenerThread implements Runnable {
 			queueName = channel.queueDeclare().getQueue();
 			channel.queueBind(queueName, "results", "");
 
-			System.out.println("[*] Waiting for messages.");
+			//System.out.println("[*] Waiting for messages.");
 
 			Consumer consumer = new DefaultConsumer(channel) {
 				@Override
 				public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
 						throws IOException {
 					String message = new String(body, "UTF-8");
-					// System.out.println("[x] Received '" + message + "'");
+					//System.out.println("Thread "+threadID+" Received '" + message + "'");
 					Gson gson = new Gson();
 					Solution sol = gson.fromJson(message, Solution.class);
-					value = sol.getResultValue();
-					synchronized (Optimizer.obj) {
-						Optimizer.obj.notify();
+					
+					if(lastSolutionCandidate.compareSolution(sol)){
+						value = sol.getResultValue();
+						synchronized (threadSynchronizeObj) {
+							threadSynchronizeObj.notify();
+						}
 					}
 				}
 			};
@@ -79,8 +89,9 @@ public class RabbitMQListenerThread implements Runnable {
 	public double getValue() {
 		return value;
 	}
-
-	public static RabbitMQListenerThread getInstance() {
-		return listener;
+	
+	public void setLastSolutionCandidate(Solution newCandidate){
+		lastSolutionCandidate = newCandidate;
 	}
+
 }

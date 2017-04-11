@@ -1,32 +1,37 @@
 package algorithm;
 
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 import messaging.RabbitMQListenerThread;
-import messaging.RabbitMQSender;
+import messaging.RabbitMQSenderThread;
 
-public class Optimizer implements Runnable {
+public class OptimizerThread implements Runnable {
 	private double[] solutionVector = new double[17];
 	private Solution start = generateRandomSolution();
-	private static RabbitMQSender send = RabbitMQSender.getInstance();
-	private static RabbitMQListenerThread listen = RabbitMQListenerThread.getInstance();
-	private static Thread listener;
+	private RabbitMQSenderThread send = new RabbitMQSenderThread();
+	public Object obj = new Object();
+	private RabbitMQListenerThread listen;
+	private Thread listener;
 	private int n;
 	private double u;
 	private double temp;
 	private double coolingRate;
-	public static final Object obj = new Object();
+	private int threadID;
 
-	Optimizer(int maxIterations, double jumpingRange, double temp, double coolingRate) {
+	OptimizerThread(int maxIterations, double jumpingRange, double temp, double coolingRate, int threadID) {
 		this.n = maxIterations;
 		this.u = jumpingRange;
 		this.temp = temp;
 		this.coolingRate = coolingRate;
+		this.threadID = threadID;
+		listen = new RabbitMQListenerThread(obj, threadID);
 		System.out.println("created thread");
 		listener = new Thread(listen);
 		simulatedAnnealing.listener = listener;
 		listener.start();
 		System.out.println("started listener");
+		System.out.println("Startvector of Thread "+threadID+": "+Arrays.toString(start.getSolutionVector()));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -35,7 +40,7 @@ public class Optimizer implements Runnable {
 			Solution current = start;
 			double[] vector = current.getSolutionVector();
 			for (int e = 0; e < vector.length; e++) {
-				System.out.println("Variable Iteration: " + e);
+				System.out.println("Thread ID:"+threadID+" - Variable Iteration: " + e);
 				double optimizedValue = optimizeVariable(vector[e], n, u, e, temp, coolingRate);
 				vector[e] = optimizedValue;
 				solutionVector[e] = optimizedValue;
@@ -64,6 +69,7 @@ public class Optimizer implements Runnable {
 	public Solution updateSolution(Solution sol) {
 		try {
 			send.sendMessage(sol.toJSON());
+			listen.setLastSolutionCandidate(sol);
 			obj.wait();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -77,7 +83,9 @@ public class Optimizer implements Runnable {
 	public double checkValue(double value, int i) {
 		try {
 			solutionVector[i] = value;
-			send.sendMessage(new Solution(solutionVector).toJSON());
+			Solution sol = new Solution(solutionVector);
+			send.sendMessage(sol.toJSON());
+			listen.setLastSolutionCandidate(sol);
 			obj.wait();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -107,7 +115,7 @@ public class Optimizer implements Runnable {
 			t += 1;
 			localTemp *= 1 - coolingRate;
 		}
-		System.out.println("X: " + value + " Y: " + checkValue(value, iteration));
+		//System.out.println("X: " + value + " Y: " + checkValue(value, iteration));
 		return value;
 	}
 
@@ -115,14 +123,14 @@ public class Optimizer implements Runnable {
 	public boolean shouldChange(double ynew, double yold, double localTemp) {
 		double exp = Math.exp(-(ynew - yold) / localTemp);
 		double val = ThreadLocalRandom.current().nextDouble(0, 1);
-		System.out.println(yold + " " + ynew + " " + localTemp + " " + exp + " " + val);
+		//System.out.println(yold + " " + ynew + " " + localTemp + " " + exp + " " + val);
 		if (exp >= 1)
 			System.exit(0);
 		if (val < exp) {
-			System.out.println("Exp: " + exp + ": true");
+			//System.out.println("Exp: " + exp + ": true");
 			return true;
 		} else {
-			System.out.println("Exp: " + exp + ": false");
+			//System.out.println("Exp: " + exp + ": false");
 			return false;
 		}
 	}

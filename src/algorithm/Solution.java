@@ -12,11 +12,14 @@ public class Solution {
         solutionCandidateID= UUID.randomUUID().toString();
         this.setSolutionVector(solutions);
     }
-    String toJSON(){
+    public String toJSON(){
         return new JSONObject(this).toString();
     }
     public String getSolutionCandidateID() {
         return solutionCandidateID;
+    }
+    public void setSolutionCandidateID(String solutionCandidateID) {
+        this.solutionCandidateID = solutionCandidateID;
     }
     public double[] getSolutionVector() {
         return solutionVector;
@@ -41,5 +44,14 @@ public class Solution {
     }
     public void setIsEvaluated(boolean isEvaluated) {
         this.isEvaluated = isEvaluated;
+    }
+    
+    public boolean compareSolution(Solution solutionToCompareTo){
+    	double[] compareVector = solutionToCompareTo.getSolutionVector();
+    	for(int i = 0; i< solutionVector.length;i++){
+    		if(solutionVector[i] != compareVector[i])
+    			return false;
+    	}
+    	return true;
     }
 }

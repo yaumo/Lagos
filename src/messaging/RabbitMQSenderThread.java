@@ -7,13 +7,12 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
-public class RabbitMQSender {
+public class RabbitMQSenderThread {
 	// setting up connection to Inbound Queue
 	Connection connection;
 	Channel channel;
-	private static final RabbitMQSender me = new RabbitMQSender();
 
-	private RabbitMQSender() {
+	public RabbitMQSenderThread() {
 		try {
 			ConnectionFactory factory = new ConnectionFactory();
 			factory.setHost("192.168.99.100");
@@ -25,9 +24,6 @@ public class RabbitMQSender {
 		}
 	}
 
-	public static RabbitMQSender getInstance() {
-		return me;
-	}
 
 	public void sendMessage(String message) {
 		try {
