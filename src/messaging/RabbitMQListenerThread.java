@@ -28,7 +28,7 @@ public class RabbitMQListenerThread implements Runnable {
 
 		try {
 			ConnectionFactory factory = new ConnectionFactory();
-			factory.setHost("localhost");
+			factory.setHost("192.168.99.100");
 			connection = factory.newConnection();
 			channel = connection.createChannel();
 

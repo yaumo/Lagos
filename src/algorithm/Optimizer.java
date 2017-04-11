@@ -13,11 +13,15 @@ public class Optimizer implements Runnable {
 	private static Thread listener;
 	private int n;
 	private double u;
+	private double temp;
+	private double coolingRate;
 	public static final Object obj = new Object();
 
-	Optimizer(int n, double u) {
-		this.n = n;
-		this.u = u;
+	Optimizer(int maxIterations, double jumpingRange, double temp, double coolingRate) {
+		this.n = maxIterations;
+		this.u = jumpingRange;
+		this.temp = temp;
+		this.coolingRate = coolingRate;
 		System.out.println("created thread");
 		listener = new Thread(listen);
 		simulatedAnnealing.listener = listener;
@@ -32,7 +36,7 @@ public class Optimizer implements Runnable {
 			double[] vector = current.getSolutionVector();
 			for (int e = 0; e < vector.length; e++) {
 				System.out.println("Variable Iteration: " + e);
-				double optimizedValue = optimizeVariable(vector[e], n, u, e);
+				double optimizedValue = optimizeVariable(vector[e], n, u, e, temp, coolingRate);
 				vector[e] = optimizedValue;
 				solutionVector[e] = optimizedValue;
 			}
@@ -81,11 +85,10 @@ public class Optimizer implements Runnable {
 		return listen.getValue();
 	}
 
-	public double optimizeVariable(double value, int n, double u, int iteration) {
-		double temp = 100;
-		double coolingRate = 0.03;
+	public double optimizeVariable(double value, int n, double u, int iteration, double temp, double coolingRate) {
+		double localTemp = temp;
 		int t = 0;
-		while (temp > 1) {
+		while (localTemp > 1) {
 			for (int i = 1; i <= n; i++) {
 				double newValue = value + ThreadLocalRandom.current().nextDouble(-u, u);
 				double ynew = checkValue(newValue, iteration);
@@ -93,7 +96,7 @@ public class Optimizer implements Runnable {
 				if (ynew <= yold) {
 					value = newValue;
 					break;
-				} else if (shouldChange(ynew, yold, temp)) {
+				} else if (shouldChange(ynew, yold, localTemp)) {
 					value = newValue;
 					break;
 				} else {
@@ -102,17 +105,17 @@ public class Optimizer implements Runnable {
 			}
 			// wenn der Wert sich mehrere male hinterinander verschlechtern würde -> abbrechen weil vorraussichtlich optimum erreicht
 			t += 1;
-			temp *= 1 - coolingRate;
+			localTemp *= 1 - coolingRate;
 		}
 		System.out.println("X: " + value + " Y: " + checkValue(value, iteration));
 		return value;
 	}
 
 	// almost always true, no idea why, should work
-	public boolean shouldChange(double ynew, double yold, double temp) {
-		double exp = Math.exp(-(ynew - yold) / temp);
+	public boolean shouldChange(double ynew, double yold, double localTemp) {
+		double exp = Math.exp(-(ynew - yold) / localTemp);
 		double val = ThreadLocalRandom.current().nextDouble(0, 1);
-		System.out.println(yold + " " + ynew + " " + temp + " " + exp + " " + val);
+		System.out.println(yold + " " + ynew + " " + localTemp + " " + exp + " " + val);
 		if (exp >= 1)
 			System.exit(0);
 		if (val < exp) {

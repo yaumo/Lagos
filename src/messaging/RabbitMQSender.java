@@ -16,7 +16,7 @@ public class RabbitMQSender {
 	private RabbitMQSender() {
 		try {
 			ConnectionFactory factory = new ConnectionFactory();
-			factory.setHost("localhost");
+			factory.setHost("192.168.99.100");
 			connection = factory.newConnection();
 			channel = connection.createChannel();
 			channel.queueDeclare("Inbound", false, false, false, null);
