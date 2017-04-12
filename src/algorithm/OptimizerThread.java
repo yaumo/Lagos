@@ -8,7 +8,7 @@ import messaging.RabbitMQSenderThread;
 
 public class OptimizerThread implements Runnable {
 	private double[] solutionVector = new double[17];
-	private Solution start = generateRandomSolution();
+	private Solution start;
 	private RabbitMQSenderThread send = new RabbitMQSenderThread();
 	public Object obj = new Object();
 	private RabbitMQListenerThread listen;
@@ -19,7 +19,13 @@ public class OptimizerThread implements Runnable {
 	private double coolingRate;
 	private int threadID;
 
-	OptimizerThread(int maxIterations, double jumpingRange, double temp, double coolingRate, int threadID) {
+	OptimizerThread(int maxIterations, double jumpingRange, double temp, double coolingRate, int threadID, double[] startSolutionVector) {
+		double[] tempVector = new double[startSolutionVector.length];
+		for(int i = 0; i < startSolutionVector.length;i++){
+			solutionVector[i] = startSolutionVector[i];
+			tempVector[i] = startSolutionVector[i];			
+		}
+		start = new Solution(tempVector);
 		this.n = maxIterations;
 		this.u = jumpingRange;
 		this.temp = temp;
@@ -47,23 +53,14 @@ public class OptimizerThread implements Runnable {
 			}
 			current.setSolutionVector(vector);
 			current = updateSolution(current);
-			System.out.println("---------------------------------------");
+			System.out.println("-------Thread " + threadID + " finished:-------");
+			System.out.println("Used parameters: Iterations: "+n+" Range: "+u+" Temp: "+temp+" Rate: "+coolingRate);
 			System.out.println(current.toJSON());
 			listen.shutdown();
 			send.closeCon();
 			Thread.currentThread().stop();
 
 		}
-	}
-
-	public Solution generateRandomSolution() {
-		double[] vector = new double[17];
-		for (int i = 0; i < 17; i++) {
-			double tmp = ThreadLocalRandom.current().nextDouble(-5, 5);
-			vector[i] = tmp;
-			solutionVector[i] = tmp;
-		}
-		return new Solution(vector);
 	}
 
 	public Solution updateSolution(Solution sol) {
