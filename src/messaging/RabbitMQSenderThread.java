@@ -15,7 +15,7 @@ public class RabbitMQSenderThread {
 	public RabbitMQSenderThread() {
 		try {
 			ConnectionFactory factory = new ConnectionFactory();
-			factory.setHost("192.168.99.100");
+			factory.setHost("localhost");
 			connection = factory.newConnection();
 			channel = connection.createChannel();
 			channel.queueDeclare("Inbound", false, false, false, null);
@@ -23,7 +23,6 @@ public class RabbitMQSenderThread {
 			e.printStackTrace();
 		}
 	}
-
 
 	public void sendMessage(String message) {
 		try {

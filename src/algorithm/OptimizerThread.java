@@ -21,9 +21,9 @@ public class OptimizerThread implements Runnable {
 
 	OptimizerThread(int maxIterations, double jumpingRange, double temp, double coolingRate, int threadID, double[] startSolutionVector) {
 		double[] tempVector = new double[startSolutionVector.length];
-		for(int i = 0; i < startSolutionVector.length;i++){
+		for (int i = 0; i < startSolutionVector.length; i++) {
 			solutionVector[i] = startSolutionVector[i];
-			tempVector[i] = startSolutionVector[i];			
+			tempVector[i] = startSolutionVector[i];
 		}
 		start = new Solution(tempVector);
 		this.n = maxIterations;
@@ -37,16 +37,16 @@ public class OptimizerThread implements Runnable {
 		simulatedAnnealing.listener = listener;
 		listener.start();
 		System.out.println("started listener");
-		System.out.println("Startvector of Thread "+threadID+": "+Arrays.toString(start.getSolutionVector()));
+		System.out.println("Startvector of Thread " + threadID + ": " + Arrays.toString(start.getSolutionVector()));
 	}
 
-	@SuppressWarnings("deprecation")
+	@Override
 	public void run() {
 		synchronized (obj) {
 			Solution current = start;
 			double[] vector = current.getSolutionVector();
 			for (int e = 0; e < vector.length; e++) {
-				System.out.println("Thread ID:"+threadID+" - Variable Iteration: " + e);
+				System.out.println("Thread ID:" + threadID + " - Variable Iteration: " + e);
 				double optimizedValue = optimizeVariable(vector[e], n, u, e, temp, coolingRate);
 				vector[e] = optimizedValue;
 				solutionVector[e] = optimizedValue;
@@ -54,11 +54,10 @@ public class OptimizerThread implements Runnable {
 			current.setSolutionVector(vector);
 			current = updateSolution(current);
 			System.out.println("-------Thread " + threadID + " finished:-------");
-			System.out.println("Used parameters: Iterations: "+n+" Range: "+u+" Temp: "+temp+" Rate: "+coolingRate);
+			System.out.println("Used parameters: Iterations: " + n + " Range: " + u + " Temp: " + temp + " Rate: " + coolingRate);
 			System.out.println(current.toJSON());
 			listen.shutdown();
 			send.closeCon();
-			Thread.currentThread().stop();
 
 		}
 	}
@@ -71,9 +70,7 @@ public class OptimizerThread implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		sol.setResultValue(listen.getValue());
-		sol.setIsFeasible(true);
-		sol.setIsEvaluated(true);
+		sol = listen.getSolution();
 		return sol;
 	}
 
@@ -112,7 +109,7 @@ public class OptimizerThread implements Runnable {
 			t += 1;
 			localTemp *= 1 - coolingRate;
 		}
-		//System.out.println("X: " + value + " Y: " + checkValue(value, iteration));
+		// System.out.println("X: " + value + " Y: " + checkValue(value, iteration));
 		return value;
 	}
 
@@ -120,14 +117,14 @@ public class OptimizerThread implements Runnable {
 	public boolean shouldChange(double ynew, double yold, double localTemp) {
 		double exp = Math.exp(-(ynew - yold) / localTemp);
 		double val = ThreadLocalRandom.current().nextDouble(0, 1);
-		//System.out.println(yold + " " + ynew + " " + localTemp + " " + exp + " " + val);
+		// System.out.println(yold + " " + ynew + " " + localTemp + " " + exp + " " + val);
 		if (exp >= 1)
 			System.exit(0);
 		if (val < exp) {
-			//System.out.println("Exp: " + exp + ": true");
+			// System.out.println("Exp: " + exp + ": true");
 			return true;
 		} else {
-			//System.out.println("Exp: " + exp + ": false");
+			// System.out.println("Exp: " + exp + ": false");
 			return false;
 		}
 	}
