@@ -19,5 +19,5 @@ services:
       - mq:mq
     environment:
       RHOST: mq
-      FTYPE: 4
+      FTYPE: 2
       DELAY: 1

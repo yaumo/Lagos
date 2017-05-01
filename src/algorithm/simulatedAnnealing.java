@@ -83,7 +83,7 @@ public class simulatedAnnealing {
 	public static double[] generateRandomSolution(int solutionLength) {
 		double[] vector = new double[solutionLength];
 		for (int i = 0; i < solutionLength; i++) {
-			double tmp = ThreadLocalRandom.current().nextDouble(-5, 5);
+			double tmp = ThreadLocalRandom.current().nextDouble(-3, 3);
 			vector[i] = tmp;
 		}
 		return vector;
@@ -147,6 +147,7 @@ public class simulatedAnnealing {
 	         coolingRate = tempRate;
 	         coolingRates = tempRates;
 	         
+	         br.close();
 	         System.out.println("Input Config successfully loaded.");
 	         
 	      } catch(Exception e) {

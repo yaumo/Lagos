@@ -25,6 +25,10 @@ public class RabbitMQListenerThread implements Runnable {
 	private Object threadSynchronizeObj;
 	private Solution lastSolutionCandidate;
 	private int threadID;
+	private boolean gotFeasible = false;
+	private boolean currentFeasible = false;
+	private int feasibleCheckFailed = 0;
+	private int feasibleCheckSucceeded = 0;
 
 	public RabbitMQListenerThread(Object threadSynchronizeObj, int threadID) {
 		this.threadSynchronizeObj = threadSynchronizeObj;
@@ -57,6 +61,9 @@ public class RabbitMQListenerThread implements Runnable {
 
 					if (lastSolutionCandidate.compareSolution(sol)) {
 						solution = sol;
+						currentFeasible = sol.getIsFeasible();
+						if(currentFeasible)
+							gotFeasible = true;
 						value = sol.getResultValue();
 						synchronized (threadSynchronizeObj) {
 							threadSynchronizeObj.notify();
@@ -97,5 +104,18 @@ public class RabbitMQListenerThread implements Runnable {
 	public void setLastSolutionCandidate(Solution newCandidate) {
 		lastSolutionCandidate = newCandidate;
 	}
-
+	
+	public boolean feasibleChangeCheck(){
+		if(gotFeasible && !currentFeasible){
+			feasibleCheckFailed++;
+			return false;
+		}
+		feasibleCheckSucceeded++;
+		return true;
+	}
+	
+	public int[] getFeasibleCheckResults(){
+		int[] tempResults = {feasibleCheckFailed, feasibleCheckSucceeded};
+		return tempResults;
+	}
 }

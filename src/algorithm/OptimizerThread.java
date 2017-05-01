@@ -54,8 +54,10 @@ public class OptimizerThread implements Runnable {
 			current.setSolutionVector(vector);
 			current = updateSolution(current);
 			System.out.println("-------Thread " + threadID + " finished:-------");
+			int[] feasibleCheckResults = listen.getFeasibleCheckResults();
+			System.out.println("Feasible Checks Failed: "+feasibleCheckResults[0]+" Succeeded: "+feasibleCheckResults[1]);
 			System.out.println("Used parameters: Iterations: " + n + " Range: " + u + " Temp: " + temp + " Rate: " + coolingRate);
-			System.out.println(current.toJSON());
+			System.out.println(current.toJSON());			
 			listen.shutdown();
 			send.closeCon();
 
@@ -95,17 +97,19 @@ public class OptimizerThread implements Runnable {
 				double newValue = value + ThreadLocalRandom.current().nextDouble(-u, u);
 				double ynew = checkValue(newValue, iteration);
 				double yold = checkValue(value, iteration);
-				if (ynew <= yold) {
+				
+				//don't change, if old solution was feasible and new isn't				
+				if (ynew <= yold && listen.feasibleChangeCheck()) {
 					value = newValue;
 					break;
-				} else if (shouldChange(ynew, yold, localTemp)) {
+				} else if (shouldChange(ynew, yold, localTemp)  && listen.feasibleChangeCheck()) {
 					value = newValue;
 					break;
 				} else {
 					continue;
 				}
 			}
-			// wenn der Wert sich mehrere male hinterinander verschlechtern würde -> abbrechen weil vorraussichtlich optimum erreicht
+
 			t += 1;
 			localTemp *= 1 - coolingRate;
 		}
