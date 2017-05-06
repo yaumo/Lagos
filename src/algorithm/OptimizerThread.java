@@ -93,7 +93,6 @@ public class OptimizerThread implements Runnable {
 	public double optimizeVariable(double value, int n, double u, int iteration, double temp, double coolingRate) {
 		double localTemp = temp;
 		int t = 0;
-		System.out.println(localTemp + " " + n);
 		while (localTemp > 1) {
 			for (int i = 1; i <= n; i++) {
 				double newValue = value + ThreadLocalRandom.current().nextDouble(-u, u);
