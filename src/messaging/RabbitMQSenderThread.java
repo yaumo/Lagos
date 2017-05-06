@@ -37,7 +37,6 @@ public class RabbitMQSenderThread {
 		try {
 			channel.close();
 			connection.close();
-			System.exit(0);
 
 		} catch (IOException e) {
 			e.printStackTrace();

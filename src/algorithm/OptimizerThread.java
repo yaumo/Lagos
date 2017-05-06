@@ -35,7 +35,7 @@ public class OptimizerThread implements Runnable {
 		System.out.println("created thread");
 		listener = new Thread(listen);
 		simulatedAnnealing.listener = listener;
-		listener.start();
+		listener.run();
 		System.out.println("started listener");
 		System.out.println("Startvector of Thread " + threadID + ": " + Arrays.toString(start.getSolutionVector()));
 	}
@@ -55,9 +55,9 @@ public class OptimizerThread implements Runnable {
 			current = updateSolution(current);
 			System.out.println("-------Thread " + threadID + " finished:-------");
 			int[] feasibleCheckResults = listen.getFeasibleCheckResults();
-			System.out.println("Feasible Checks Failed: "+feasibleCheckResults[0]+" Succeeded: "+feasibleCheckResults[1]);
+			System.out.println("Feasible Checks Failed: " + feasibleCheckResults[0] + " Succeeded: " + feasibleCheckResults[1]);
 			System.out.println("Used parameters: Iterations: " + n + " Range: " + u + " Temp: " + temp + " Rate: " + coolingRate);
-			System.out.println(current.toJSON());			
+			System.out.println(current.toJSON());
 			listen.shutdown();
 			send.closeCon();
 
@@ -81,6 +81,7 @@ public class OptimizerThread implements Runnable {
 			solutionVector[i] = value;
 			Solution sol = new Solution(solutionVector);
 			send.sendMessage(sol.toJSON());
+
 			listen.setLastSolutionCandidate(sol);
 			obj.wait();
 		} catch (InterruptedException e) {
@@ -92,24 +93,24 @@ public class OptimizerThread implements Runnable {
 	public double optimizeVariable(double value, int n, double u, int iteration, double temp, double coolingRate) {
 		double localTemp = temp;
 		int t = 0;
+		System.out.println(localTemp + " " + n);
 		while (localTemp > 1) {
 			for (int i = 1; i <= n; i++) {
 				double newValue = value + ThreadLocalRandom.current().nextDouble(-u, u);
 				double ynew = checkValue(newValue, iteration);
 				double yold = checkValue(value, iteration);
-				
-				//don't change, if old solution was feasible and new isn't				
+
+				// don't change, if old solution was feasible and new isn't
 				if (ynew <= yold && listen.feasibleChangeCheck()) {
 					value = newValue;
 					break;
-				} else if (shouldChange(ynew, yold, localTemp)  && listen.feasibleChangeCheck()) {
+				} else if (shouldChange(ynew, yold, localTemp) && listen.feasibleChangeCheck()) {
 					value = newValue;
 					break;
 				} else {
 					continue;
 				}
 			}
-
 			t += 1;
 			localTemp *= 1 - coolingRate;
 		}
@@ -122,8 +123,6 @@ public class OptimizerThread implements Runnable {
 		double exp = Math.exp(-(ynew - yold) / localTemp);
 		double val = ThreadLocalRandom.current().nextDouble(0, 1);
 		// System.out.println(yold + " " + ynew + " " + localTemp + " " + exp + " " + val);
-		if (exp >= 1)
-			System.exit(0);
 		if (val < exp) {
 			// System.out.println("Exp: " + exp + ": true");
 			return true;

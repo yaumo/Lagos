@@ -48,21 +48,21 @@ public class RabbitMQListenerThread implements Runnable {
 			queueName = channel.queueDeclare().getQueue();
 			channel.queueBind(queueName, "results", "");
 
-			// System.out.println("[*] Waiting for messages.");
+			System.out.println("[*] Waiting for messages.");
 
 			Consumer consumer = new DefaultConsumer(channel) {
 				@Override
 				public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
 						throws IOException {
 					String message = new String(body, "UTF-8");
-					// System.out.println("Thread "+threadID+" Received '" + message + "'");
+					// System.out.println("Thread " + threadID + " Received '" + message + "'");
 					Gson gson = new Gson();
 					Solution sol = gson.fromJson(message, Solution.class);
 
 					if (lastSolutionCandidate.compareSolution(sol)) {
 						solution = sol;
 						currentFeasible = sol.getIsFeasible();
-						if(currentFeasible)
+						if (currentFeasible)
 							gotFeasible = true;
 						value = sol.getResultValue();
 						synchronized (threadSynchronizeObj) {
@@ -104,18 +104,18 @@ public class RabbitMQListenerThread implements Runnable {
 	public void setLastSolutionCandidate(Solution newCandidate) {
 		lastSolutionCandidate = newCandidate;
 	}
-	
-	public boolean feasibleChangeCheck(){
-		if(gotFeasible && !currentFeasible){
+
+	public boolean feasibleChangeCheck() {
+		if (gotFeasible && !currentFeasible) {
 			feasibleCheckFailed++;
 			return false;
 		}
 		feasibleCheckSucceeded++;
 		return true;
 	}
-	
-	public int[] getFeasibleCheckResults(){
-		int[] tempResults = {feasibleCheckFailed, feasibleCheckSucceeded};
+
+	public int[] getFeasibleCheckResults() {
+		int[] tempResults = { feasibleCheckFailed, feasibleCheckSucceeded };
 		return tempResults;
 	}
 }
