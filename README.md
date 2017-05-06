@@ -9,7 +9,7 @@
 - https://hub.docker.com/r/jreichwald/dhbw_oip/
 - [docker-compose.yml](Miscellaneous/docker-compose.yml)
 - RabbitMQ Dashboard
-  - IP: http://127.0.0.1:15672
+  - IP: http://localhost:15672
   - Username: guest
   - Passwort: guest
 
