@@ -5,9 +5,14 @@
 - https://www.dropbox.com/s/3j60eoze10fiawi/SimBasedOptim.pdf?dl=0
 
 ## Docker
-- https://hub.docker.com/r/jreichwald/dhbw_oip/
-- [docker-compose.yml](Miscellaneous/docker-compose.yml)  
 - Aufsetzen der Infrastruktur: docker-compose up -d in dem Order /Lagos/Miscellaneous
+- https://hub.docker.com/r/jreichwald/dhbw_oip/
+- [docker-compose.yml](Miscellaneous/docker-compose.yml)
+- RabbitMQ Dashboard
+  - IP: http://127.0.0.1:15672
+  - Username: guest
+  - Passwort: guest
+
 
 ## Algorithmus: Simulated Annealing
 ### Dokumentation
@@ -64,7 +69,64 @@ bis keine Verringerung der Energiefunktion mehr auftritt;
 ```
 Source: http://fbim.fh-regensburg.de/~saj39122/vhb/NN-Script/script/gen/k02070403.html
 
+## Ergebnisse
+#### FTYPE 1
+- solutionVector:
+- isFeasible: 
+- resultValue: 
 
-Optimum der Funktion:
--39,16617 * n < f(-2,903534,...) < -37,16616 * n
-n=Tiefe an -2,903534en
+- Iterationen:
+- Temperatur:
+- Abkühlungsrate:
+- Umgebungsvariable: 
+
+#### FTYPE 2
+- solutionVector:
+- isFeasible: 
+- resultValue: 
+
+- Iterationen:
+- Temperatur:
+- Abkühlungsrate:
+- Umgebungsvariable: 
+
+#### FTYPE 3
+- solutionVector:
+- isFeasible: 
+- resultValue: 
+
+- Iterationen:
+- Temperatur:
+- Abkühlungsrate:
+- Umgebungsvariable: 
+
+#### FTYPE 4
+- solutionVector:
+- isFeasible: 
+- resultValue: 
+
+- Iterationen:
+- Temperatur:
+- Abkühlungsrate:
+- Umgebungsvariable: 
+
+## Optimale Ergebnisse
+#### FTYPE 1
+- Rosenbrock Funktion
+- Optimum: 0
+- Wertebereich: -5 bis 5 
+
+#### FTYPE 2
+- Reichwald Funktion
+- Optimum: unbekannt
+- Wertebereich: -5 bis 5
+
+#### FTYPE 3
+- Rastrigin Funktion
+- Optimum: 0
+- Wertebereich: -5,12 bis 5,12
+
+#### FTYPE 4
+- Styblinski-Tang Funktion
+- Optimum: -39,16617 * n < ... < -37,16616 * n
+- Wertebereich: -5 bis 5 
