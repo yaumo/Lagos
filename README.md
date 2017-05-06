@@ -1,15 +1,16 @@
 # Lagos - Optimierung industrieller Prozesse 
 #### Nico Himmelein, Philipp Thiele, Lukas Freitag, Thomas Richter
 
-## Task Introduction
-https://www.dropbox.com/s/3j60eoze10fiawi/SimBasedOptim.pdf?dl=0
+## Vorstellung der Aufgabe
+- https://www.dropbox.com/s/3j60eoze10fiawi/SimBasedOptim.pdf?dl=0
 
 ## Docker
 - https://hub.docker.com/r/jreichwald/dhbw_oip/
-- [docker-compose.yml](Stuff/docker-compose.yml)
+- [docker-compose.yml](Miscellaneous/docker-compose.yml)  
+- Aufsetzen der Infrastruktur: docker-compose up -d in dem Order /Lagos/Miscellaneous
 
-## Algorithm: Simulated Annealing
-### Documentation
+## Algorithmus: Simulated Annealing
+### Dokumentation
 Simualted Annealing ist ein Verfahren zum
 Auffinden einer Näherungslösung für ein Optimierungsproblem
 (meist Minimierung) ohne
