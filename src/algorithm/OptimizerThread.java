@@ -96,8 +96,9 @@ public class OptimizerThread implements Runnable {
 		while (localTemp > 1) {
 			for (int i = 1; i <= n; i++) {
 				double newValue = value + ThreadLocalRandom.current().nextDouble(-u, u);
-				double ynew = checkValue(newValue, iteration);
 				double yold = checkValue(value, iteration);
+				double ynew = checkValue(newValue, iteration);
+
 
 				// don't change, if old solution was feasible and new isn't
 				if (ynew <= yold && listen.feasibleChangeCheck()) {
