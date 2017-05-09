@@ -45,18 +45,7 @@ public class OptimizerThread implements Runnable {
 		synchronized (obj) {
 			Solution current = start;
 			double[] vector = current.getSolutionVector();
-			for(int i = 0; i< 10; i++){
-				for (int e = 0; e < vector.length; e++) {
-					System.out.println("Thread ID:" + threadID + " - Variable Iteration: " + e + " - Round: "+i);
-					double optimizedValue = optimizeVariable(vector[e], n, u, e, temp, coolingRate);
-					vector[e] = optimizedValue;
-					solutionVector[e] = optimizedValue;
-				}
-				current.setSolutionVector(vector);
-				current = updateSolution(current);
-				System.out.println("-------Thread " + threadID + " intermediate result of round "+i);
-				System.out.println(current.toJSON());
-			}
+			current = optimizeVector(vector, current);
 			current.setSolutionVector(vector);
 			current = updateSolution(current);
 			System.out.println("-------Thread " + threadID + " finished:-------");
@@ -66,8 +55,23 @@ public class OptimizerThread implements Runnable {
 			System.out.println(current.toJSON());
 			listen.shutdown();
 			send.closeCon();
-
 		}
+	}
+	
+	public Solution optimizeVector(double[] vector, Solution current){
+		for(int i = 0; i< 1; i++){
+			for (int e = 0; e < vector.length; e++) {
+				System.out.println("Thread ID:" + threadID + " - Variable Iteration: " + e + " - Round: "+i);
+				double optimizedValue = optimizeVariable(vector[e], n, u, e, temp, coolingRate);
+				vector[e] = optimizedValue;
+				solutionVector[e] = optimizedValue;
+			}
+			current.setSolutionVector(vector);
+			current = updateSolution(current);
+			System.out.println("-------Thread " + threadID + " intermediate result of round "+i);
+			System.out.println(current.toJSON());			
+		}
+		return current;
 	}
 
 	public Solution updateSolution(Solution sol) {
